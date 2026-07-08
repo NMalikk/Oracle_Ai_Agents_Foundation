@@ -173,6 +173,7 @@ agent = Agent(
         "perform calculations. Always use tools — do not calculate in your head."
     ),
     tools=tools,
+    model=MODEL,
 )
 
 
@@ -221,6 +222,7 @@ async def simple_chat_example():
     chat_agent = Agent(
         name="ChatAgent",
         instructions="You are a helpful assistant.",
+        model=MODEL,
     )
 
     result = await Runner.run(

@@ -34,29 +34,17 @@ from dotenv import load_dotenv
 #      "We keep the key out of the code in a .env file. This line finds that
 #       file sitting right next to the script, no matter where we run python
 #       from." Path(__file__) is this file; .parent is its folder.
-script_dir = Path(__file__).resolve().parent
+script_dir = Path(__file__).resolve().parent.resolve().parent
 load_dotenv(dotenv_path=script_dir / ".env")
 
 # Confirm the key loaded WITHOUT printing the key itself (never print secrets).
 print("OCI_GENAI_API_KEY found:", bool(os.getenv("OCI_GENAI_API_KEY")))
 
-
 # ─── Configuration ───────────────────────────────────────────────────────────
-#      "Three things make this point at OCI instead of OpenAI: the region in
-#       the URL, the model name, and your project OCID. Change these to yours."
-
-OCI_REGION = "us-chicago-1"          # <-- CHANGE to your region
-
-OCI_BASE_URL = (
-    f"https://inference.generativeai.{OCI_REGION}"
-    f".oci.oraclecloud.com/openai/v1"
-)
-
-MODEL = "openai.gpt-oss-120b"        # strong reasoning model on OCI
-
-# OCI Console → Generative AI → Projects → your project → copy OCID
-OCI_PROJECT_ID = ""
-
+OCI_REGION = os.getenv("REGION")          # <-- CHANGE to your region
+OCI_BASE_URL = (f"https://inference.generativeai.{OCI_REGION}"f".oci.oraclecloud.com/openai/v1")
+MODEL = os.getenv("MODEL_ID")       # strong reasoning model on OCI
+OCI_PROJECT_ID = os.getenv("PROJECT_ID")
 
 # ─── Create the Client ───────────────────────────────────────────────────────
 #      "Here's the trick — it's the standard OpenAI client, but we swap in
@@ -124,6 +112,7 @@ MATH_TOOLS = [
                 "b": {"type": "number", "description": "Second number"},
             },
             "required": ["a", "b"],
+            "additionalProperties": False
         },
     },
     {
@@ -137,6 +126,7 @@ MATH_TOOLS = [
                 "b": {"type": "number", "description": "Second number"},
             },
             "required": ["a", "b"],
+            "additionalProperties": False
         },
     },
     {
@@ -150,6 +140,7 @@ MATH_TOOLS = [
                 "b": {"type": "number", "description": "Denominator"},
             },
             "required": ["a", "b"],
+            "additionalProperties": False
         },
     },
     {
@@ -162,6 +153,7 @@ MATH_TOOLS = [
                 "number": {"type": "number", "description": "The number"},
             },
             "required": ["number"],
+            "additionalProperties": False
         },
     },
 ]
@@ -192,6 +184,7 @@ def run_agent(client, question: str):
         model=MODEL,
         input=question,
         tools=MATH_TOOLS,
+        tool_choice="required",
     )
 
     iteration = 0
@@ -273,6 +266,8 @@ def math_agent_example(client):
 
     # Case 2 — MEDIUM: two tools, in sequence (multiply, then divide).
     run_agent(client, "What is 15 multiplied by 8, then divided by 3?")
+    run_agent(client, "What is 15 multiplied by 8?")
+    run_agent(client, "What is 120 divided by 3?")
 
     # Case 3 — COMPLEX: multi-step planning (area = w×h, then its square root).
     #      "Watch — the model figures out it needs multiply FIRST, then feeds
