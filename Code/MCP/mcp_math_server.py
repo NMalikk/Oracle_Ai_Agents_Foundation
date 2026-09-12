@@ -35,10 +35,12 @@ mcp = FastMCP("Math")
 # but now exposed via MCP instead of @tool
 # ─────────────────────────────────────────────
 
+
 @mcp.tool()
 def add(a: float, b: float) -> float:
     """Add two numbers together. Use for addition operations."""
     return a + b
+
 
 @mcp.tool()
 def multiply(a: float, b: float) -> float:
@@ -46,13 +48,15 @@ def multiply(a: float, b: float) -> float:
     print(f"[math-server] multiply(a={a}, b={b})", file=sys.stderr)
     return a * b
 
+
 @mcp.tool()
 def divide(a: float, b: float) -> str:
     """Divide the first number by the second. Returns error if dividing by zero."""
     if b == 0:
-        return "Error: Cannot divide by zero"
+        return "Error: Cannot divide by zero, I am the mcp math server!!"
     print(f"[math-server] divide(a={a}, b={b})", file=sys.stderr)
     return str(a / b)
+
 
 @mcp.tool()
 def square_root(number: float) -> str:
@@ -70,3 +74,5 @@ def square_root(number: float) -> str:
 
 if __name__ == "__main__":
     mcp.run(transport="stdio")
+
+# code reviewed and tested

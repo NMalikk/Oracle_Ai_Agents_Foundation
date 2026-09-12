@@ -34,10 +34,12 @@ Usage:
   python first_agent_with_mcp.py
 ==========================================================
 """
+
 import os
 import asyncio
 from dotenv import load_dotenv
 import warnings
+
 warnings.filterwarnings("ignore", category=UserWarning)
 
 load_dotenv()
@@ -49,15 +51,24 @@ load_dotenv()
 # MCP only changes WHERE tools come from,
 # not how the LLM reasons about them.
 
-from langchain.chat_models import init_chat_model
 from langchain_openai import ChatOpenAI
 
-# Change this line:
-# model = init_chat_model("openai:gpt-4o-mini")
+# Use any OpenAI-compatible provider by setting these in a .env file.
+API_KEY = os.getenv("API_KEY")
+API_BASE_URL = os.getenv("API_BASE_URL")
+MODEL_NAME = os.getenv("MODEL_NAME")
 
-# To this:
-#model = init_chat_model("openai:gpt-4o-mini").bind(parallel_tool_calls=False)
-model = ChatOpenAI(model="gpt-5.5", parallel_tool_calls=False)
+if not API_KEY:
+    raise ValueError(
+        "Missing API_KEY in environment. Add it to your .env file, for example: API_KEY=your_key_here"
+    )
+
+model = ChatOpenAI(
+    model=MODEL_NAME,
+    api_key=API_KEY,
+    base_url=API_BASE_URL,
+    temperature=0,
+)
 
 
 # ─────────────────────────────────────────────
@@ -119,9 +130,8 @@ async def main():
                 # The MCP server to connect to
                 "command": "python",
                 "args": [server_path],
-                "transport": "stdio",       # Local process (stdin/stdout)
+                "transport": "stdio",  # Local process (stdin/stdout)
             },
-
             # ── Want MORE tools? Just add more servers! ──
             # No code changes to the agent logic needed.
             #
@@ -178,7 +188,7 @@ async def main():
 
     agent = create_agent(
         model,
-        tools=tools,        
+        tools=tools,
     )
 
     # ─────────────────────────────────────────
@@ -191,9 +201,7 @@ async def main():
         print(f"🧑 User: {question}")
         print("-" * 50)
 
-        result = await agent.ainvoke({
-            "messages": [("user", question)]
-        })
+        result = await agent.ainvoke({"messages": [("user", question)]})
 
         for msg in result["messages"]:
             if msg.type == "human":
@@ -211,7 +219,11 @@ async def main():
                 # e.g. [{'type': 'text', 'text': '120.0', ...}]
                 # Extract just the text value for clean display
                 if isinstance(content, list):
-                    texts = [item["text"] for item in content if isinstance(item, dict) and "text" in item]
+                    texts = [
+                        item["text"]
+                        for item in content
+                        if isinstance(item, dict) and "text" in item
+                    ]
                     content = ", ".join(texts) if texts else str(content)
                 print(f"🔧 Tool result: {content}")
 
