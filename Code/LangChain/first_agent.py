@@ -36,10 +36,24 @@ load_dotenv()  # Loads variables like OPENAI_API_KEY into environment
 # - Decide which tool to use
 # - Generate the final answer
 
-from langchain.chat_models import init_chat_model
+from langchain_openai import ChatOpenAI
 
-# "gpt-5.5" is the latest model
-model = init_chat_model("openai:gpt-5.5")
+# Use any OpenAI-compatible provider by setting these in a .env file.
+API_KEY = os.getenv("API_KEY")
+API_BASE_URL = os.getenv("API_BASE_URL")
+MODEL_NAME = os.getenv("MODEL_NAME")
+
+if not API_KEY:
+    raise ValueError(
+        "Missing API_KEY in environment. Add it to your .env file, for example: API_KEY=your_key_here"
+    )
+
+model = ChatOpenAI(
+    model=MODEL_NAME,
+    api_key=API_KEY,
+    base_url=API_BASE_URL,
+    temperature=0,
+)
 
 
 # -------------------------------------------------------
@@ -53,6 +67,7 @@ model = init_chat_model("openai:gpt-5.5")
 
 from langchain_core.tools import tool
 import math
+
 
 @tool
 def add(a: float, b: float) -> float:
@@ -132,15 +147,14 @@ agent = create_agent(
 # - The final answer
 # - (Optional) the internal execution trace
 
+
 def run_agent(question: str):
     """Run the agent and print a clean, beginner-friendly execution trace."""
 
     print(f"\n🧑 User: {question}")
     print("-" * 60)
 
-    result = agent.invoke({
-        "messages": [("user", question)]
-    })
+    result = agent.invoke({"messages": [("user", question)]})
 
     print("🔎 Clean Agent Execution Trace")
     print("-" * 60)
@@ -178,7 +192,8 @@ def run_agent(question: str):
             print(f"   {msg.content}")
             step += 1
 
-    print("=" * 60)
+        print("=" * 60)
+
 
 # -------------------------------------------------------
 # TEST CASES — Watch the agent in action!
