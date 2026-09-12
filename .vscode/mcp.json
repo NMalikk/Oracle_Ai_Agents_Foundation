@@ -1,0 +1,12 @@
+{
+  "servers": {
+    "math": {
+      "type": "stdio",
+      "command": "D:\\Oracle_University\\Foundations_2026_agentic\\Module2\\Oracle-Agentic-AI-Foundations\\Code\\venv\\Scripts\\python.exe",
+      "args": [
+        "MCP/mcp_math_server.py"
+      ],
+      "cwd": "${workspaceFolder}/Code"
+    }
+  }
+}
