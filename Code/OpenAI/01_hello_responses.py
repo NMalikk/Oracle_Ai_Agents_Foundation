@@ -57,3 +57,4 @@ print(response2.output_text)
 # architecture of the Responses API:
 # Client -> Responses API -> Model -> Output -> Client via responses API
 # code reviewed
+#deepseek supports openAI client natively, just need to instantiate the client with the deepseek api key and then you can use the client to make requests to the openAI responses API.
